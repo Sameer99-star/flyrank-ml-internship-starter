@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Refresh / Content Opportunity Scoring | FlyRank ML Capstone</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f7fb;
+      color: #182033;
+      line-height: 1.7;
+    }
+
+    .container {
+      width: min(1050px, 92%);
+      margin: auto;
+    }
+
+    header {
+      padding: 70px 0 55px;
+      background: #182033;
+      color: white;
+    }
+
+    header .tag {
+      display: inline-block;
+      padding: 7px 14px;
+      border: 1px solid #ffffff55;
+      border-radius: 999px;
+      font-size: 13px;
+      letter-spacing: .4px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: clamp(36px, 6vw, 62px);
+      line-height: 1.08;
+      margin: 0 0 20px;
+      max-width: 900px;
+    }
+
+    header p {
+      max-width: 820px;
+      font-size: 19px;
+      opacity: .88;
+      margin: 0;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .meta span {
+      padding: 8px 13px;
+      border-radius: 8px;
+      background: #ffffff14;
+      font-size: 14px;
+    }
+
+    main {
+      padding: 45px 0 80px;
+    }
+
+    section {
+      background: white;
+      padding: 35px;
+      margin-bottom: 24px;
+      border-radius: 16px;
+      border: 1px solid #e4e8f0;
+      box-shadow: 0 8px 30px #1820330b;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 27px;
+      line-height: 1.25;
+    }
+
+    h3 {
+      margin-top: 28px;
+      font-size: 19px;
+    }
+
+    .abstract {
+      border-left: 4px solid #182033;
+      padding-left: 20px;
+      font-size: 17px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin: 25px 0;
+    }
+
+    .stat {
+      background: #f5f7fb;
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 27px;
+      margin-bottom: 5px;
+    }
+
+    .stat small {
+      color: #687083;
+    }
+
+    code {
+      background: #eef1f6;
+      padding: 3px 7px;
+      border-radius: 5px;
+      font-size: .92em;
+    }
+
+    pre {
+      background: #182033;
+      color: #f4f6fb;
+      padding: 22px;
+      border-radius: 10px;
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+
+    .formula {
+      background: #f5f7fb;
+      padding: 20px;
+      border-radius: 10px;
+      font-family: monospace;
+      font-size: 16px;
+      overflow-x: auto;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    .note {
+      padding: 18px 20px;
+      background: #f5f7fb;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #e4e8f0;
+    }
+
+    th {
+      background: #f5f7fb;
+    }
+
+    a {
+      color: #182033;
+      font-weight: 600;
+    }
+
+    footer {
+      text-align: center;
+      padding: 35px 0 55px;
+      color: #687083;
+      font-size: 14px;
+    }
+
+    @media (max-width: 700px) {
+      section {
+        padding: 25px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      header {
+        padding: 50px 0 40px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="container">
+    <div class="tag">FLYRANK AI · MACHINE LEARNING CAPSTONE</div>
+
+    <h1>Refresh / Content Opportunity Scoring</h1>
+
+    <p>
+      An interpretable prioritization approach for identifying content pages
+      that deserve earlier human review using content age and recent performance
+      trend signals.
+    </p>
+
+    <div class="meta">
+      <span>Author: Sameer</span>
+      <span>Lane: Refresh / Content Opportunity Scoring</span>
+      <span>Dataset: 30,000 rows</span>
+      <span>September 2026</span>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <section>
+    <h2>Abstract</h2>
+
+    <div class="abstract">
+      <p>
+        This study asks whether a simple, interpretable scoring approach can
+        prioritize content pages for human review using content age and recent
+        performance trend signals. I used an anonymized FlyRank content refresh
+        dataset containing 30,000 content-level rows and built an age-only
+        baseline before extending it with a negative-trend component. The
+        extended score combines time since the last update with the magnitude
+        of recent negative trend, producing a ranked review queue. Compared
+        with the age-only baseline, the extended score changes prioritization
+        by giving additional weight to pages experiencing stronger recent
+        declines. The result is directional decision-support evidence rather
+        than a causal claim that refreshing a page will improve its performance.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2>1. Introduction / Problem Statement</h2>
+
+    <p>
+      Content teams often have more pages to review than they can manually
+      inspect at the same time. A repeatable prioritization method can help
+      editors decide which pages deserve attention first.
+    </p>
+
+    <p>
+      The research question for this capstone is:
+    </p>
+
+    <div class="note">
+      <strong>
+        Can a simple, interpretable scoring approach identify content pages
+        that should be prioritized for human review and possible refresh,
+        using content age and recent performance trend signals?
+      </strong>
+    </div>
+
+    <p>
+      The unit of analysis is an individual content page. The output is a
+      prioritization score and ranked action queue. The human decision is
+      whether to review, refresh, investigate further, or monitor a page.
+    </p>
+
+    <p>
+      The main cost of a wrong decision is wasted editorial effort or delayed
+      attention to a page that may deserve investigation. For this reason,
+      the score is designed as decision support and is not intended to
+      automatically execute content changes.
+    </p>
+  </section>
+
+  <section>
+    <h2>2. Data</h2>
+
+    <div class="stats">
+      <div class="stat">
+        <strong>30,000</strong>
+        <small>content-level rows</small>
+      </div>
+
+      <div class="stat">
+        <strong>44</strong>
+        <small>dataset columns</small>
+      </div>
+
+      <div class="stat">
+        <strong>2</strong>
+        <small>primary scoring signals</small>
+      </div>
+    </div>
+
+    <p>
+      The analysis uses the anonymized FlyRank content refresh dataset.
+      The primary signals used by the scoring rule are:
+    </p>
+
+    <ul>
+      <li><code>days_since_last_update</code></li>
+      <li><code>trend_pct</code></li>
+    </ul>
+
+    <p>
+      Additional fields such as <code>trend_direction</code>,
+      <code>freshness_tier</code>, <code>ctr</code>, and
+      <code>avg_position</code> are used for interpretation and reporting.
+    </p>
+
+    <h3>Data safety and leakage considerations</h3>
+
+    <p>
+      Pseudonymous <code>content_id</code> values are used only to identify
+      individual rows and are not used as features.
+    </p>
+
+    <p>
+      The analysis does not include client names, domains, private search
+      queries, credentials, or raw private exports in the public paper.
+    </p>
+
+    <p>
+      <code>trend_pct</code> and <code>trend_direction</code> are derived
+      performance signals, so they were explicitly considered as potential
+      leakage risks. In this analysis they are treated as observed/current
+      signals for prioritization, rather than as future outcome labels.
+      No future-window outcome is used as a predictive target.
+    </p>
+  </section>
+
+  <section>
+    <h2>3. Methodology</h2>
+
+    <p>
+      The method is an interpretable rule-based prioritization score. It was
+      deliberately kept simple so that an editor can understand why a page
+      received a high priority.
+    </p>
+
+    <h3>Baseline</h3>
+
+    <p>
+      The transparent baseline uses content age only:
+    </p>
+
+    <div class="formula">
+      baseline_score = days_since_last_update / 30
+    </div>
+
+    <p>
+      Older content therefore receives higher baseline priority.
+    </p>
+
+    <h3>Extended scoring approach</h3>
+
+    <p>
+      The extended score keeps the age component and adds the magnitude of
+      recent negative trend:
+    </p>
+
+    <div class="formula">
+      model_score = days_since_last_update / 30
+      + abs(negative trend_pct) / 10
+    </div>
+
+    <p>
+      Only negative <code>trend_pct</code> contributes to the decline
+      component. Pages are sorted by descending score, with
+      <code>days_since_last_update</code> used as a secondary ordering signal.
+    </p>
+
+    <h3>Implementation</h3>
+
+    <pre><code>model_df["score"] = (
+    model_df["days_since_last_update"].fillna(0).clip(lower=0) / 30
+    + model_df["trend_pct"].fillna(0).clip(upper=0).abs() / 10
+)</code></pre>
+
+    <p>
+      This is a prioritization rule, not a trained predictive model.
+      There is no probability estimate and no claim that the score predicts
+      future performance.
+    </p>
+  </section>
+
+  <section>
+    <h2>4. Results</h2>
+
+    <p>
+      The analysis compares the age-only baseline with the extended
+      age-plus-decline score on the same 30,000 rows.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Measure</th>
+          <th>Baseline</th>
+          <th>Extended score</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td>Minimum score</td>
+          <td>0.033</td>
+          <td>0.033</td>
+        </tr>
+
+        <tr>
+          <td>25th percentile</td>
+          <td>0.667</td>
+          <td>0.733</td>
+        </tr>
+
+        <tr>
+          <td>Median</td>
+          <td>0.667</td>
+          <td>4.297</td>
+        </tr>
+
+        <tr>
+          <td>75th percentile</td>
+          <td>3.467</td>
+          <td>7.617</td>
+        </tr>
+
+        <tr>
+          <td>Maximum score</td>
+          <td>12.433</td>
+          <td>22.433</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Highest-priority examples</h3>
+
+    <p>
+      The highest-ranked candidates generally combine substantial content
+      age with strong negative recent trends.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Candidate</th>
+          <th>Days since update</th>
+          <th>Trend %</th>
+          <th>Baseline</th>
+          <th>Extended</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td>content_f6fdf87348f6</td>
+          <td>373</td>
+          <td>-100</td>
+          <td>12.433</td>
+          <td>22.433</td>
+        </tr>
+
+        <tr>
+          <td>content_1b4ec72dafd4</td>
+          <td>372</td>
+          <td>-100</td>
+          <td>12.400</td>
+          <td>22.400</td>
+        </tr>
+
+        <tr>
+          <td>content_55a5b1c46474</td>
+          <td>373</td>
+          <td>-88.5</td>
+          <td>12.433</td>
+          <td>21.283</td>
+        </tr>
+
+        <tr>
+          <td>content_7a888d3d99c8</td>
+          <td>313</td>
+          <td>-100</td>
+          <td>10.433</td>
+          <td>20.433</td>
+        </tr>
+
+        <tr>
+          <td>content_94991fe6268c</td>
+          <td>313</td>
+          <td>-100</td>
+          <td>10.433</td>
+          <td>20.433</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      These examples demonstrate how the decline component can move a page
+      higher in the review queue compared with an age-only ranking.
+    </p>
+
+    <h3>Freshness summary</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Freshness tier</th>
+          <th>Pages</th>
+          <th>Median score</th>
+          <th>Median days since update</th>
+          <th>Median trend %</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td>0–30</td>
+          <td>20,480</td>
+          <td>2.83</td>
+          <td>20</td>
+          <td>-33.3</td>
+        </tr>
+
+        <tr>
+          <td>31–90</td>
+          <td>175</td>
+          <td>4.937</td>
+          <td>41</td>
+          <td>-38.5</td>
+        </tr>
+
+        <tr>
+          <td>91–180</td>
+          <td>9,171</td>
+          <td>6.717</td>
+          <td>104</td>
+          <td>-34.4</td>
+        </tr>
+
+        <tr>
+          <td>181+</td>
+          <td>174</td>
+          <td>10.033</td>
+          <td>211</td>
+          <td>-44.5</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      The 181+ day group has the highest median score and the highest median
+      age among the reported freshness groups, consistent with the role of
+      content age in the scoring approach.
+    </p>
+  </section>
+
+  <section>
+    <h2>5. Evaluation</h2>
+
+    <p>
+      This capstone is a ranking and decision-support analysis rather than a
+      supervised prediction task. Therefore, classification metrics such as
+      accuracy, precision, recall, and AUC are not appropriate for the current
+      scoring method.
+    </p>
+
+    <p>
+      The evaluation instead compares how the extended score changes the
+      ranking relative to the transparent age-only baseline on the same
+      dataset.
+    </p>
+
+    <div class="note">
+      <strong>Evaluation framing:</strong>
+      The measured result is a change in prioritization ranking. It is not
+      prediction accuracy and does not measure causal business impact.
+    </div>
+
+    <p>
+      No randomized experiment was performed. Consequently, the analysis
+      cannot determine whether refreshing a high-ranked page would actually
+      improve search performance.
+    </p>
+  </section>
+
+  <section>
+    <h2>6. Interpretation</h2>
+
+    <p>
+      The analysis finds that combining content age with recent negative
+      performance creates a stronger prioritization signal than age alone.
+    </p>
+
+    <p>
+      The highest-ranked candidates tend to have two characteristics:
+    </p>
+
+    <ol>
+      <li>They have not been updated for a relatively long period.</li>
+      <li>They show a strongly negative recent performance trend.</li>
+    </ol>
+
+    <p>
+      For example, the highest-ranked candidate has 373 days since its last
+      update and a trend of -100. Its baseline score is 12.433, while the
+      extended score is 22.433.
+    </p>
+
+    <p>
+      The important interpretation is not that these pages are guaranteed to
+      need refreshing. Instead, the scoring approach provides a transparent
+      way to decide which pages deserve earlier investigation.
+    </p>
+
+    <p>
+      A key negative result is that the analysis does not demonstrate causal
+      refresh impact. A high score does not prove that changing the page will
+      improve its future performance.
+    </p>
+  </section>
+
+  <section>
+    <h2>7. Ranked Recommendations</h2>
+
+    <p>
+      The output can be used as an editorial review queue.
+    </p>
+
+    <ol>
+      <li>Start with the highest-ranked pages.</li>
+      <li>Review current content quality, search intent, and relevance.</li>
+      <li>Check whether the observed decline is meaningful.</li>
+      <li>Decide whether to refresh, investigate further, or monitor.</li>
+      <li>Track the decision and reassess performance over time.</li>
+    </ol>
+
+    <h3>Action and reason code</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Action</th>
+          <th>Reason code</th>
+          <th>Meaning</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td>REFRESH</td>
+          <td>AGE_AND_DECLINE</td>
+          <td>
+            Candidate for human review because of content age and negative trend.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="note">
+      <strong>Human review is required.</strong>
+      The score must not automatically trigger a content refresh. Editorial
+      judgment is necessary because the dataset does not represent every
+      factor that may influence search performance.
+    </div>
+
+    <p>
+      The current baseline assigns a positive prioritization score across the
+      dataset because the formula incorporates age and/or negative trend.
+      Therefore, the result should be understood as a continuous ranking of
+      review priority rather than a claim that every page requires refreshing.
+    </p>
+
+    <p>
+      Confidence is moderate for the narrow task of ranking pages using the
+      selected signals. Confidence is low for any claim about causal refresh
+      impact or universal search behavior.
+    </p>
+  </section>
+
+  <section>
+    <h2>8. Limitations & Honest Framing</h2>
+
+    <ul>
+      <li>
+        The scoring method is an interpretable prioritization baseline, not a
+        causal model.
+      </li>
+
+      <li>
+        Only content age and recent negative trend are used in the scoring
+        formula. Other potentially relevant factors are omitted.
+      </li>
+
+      <li>
+        The baseline comparison measures ranking differences rather than
+        business impact.
+      </li>
+
+      <li>
+        The dataset is observational and anonymized, so the findings should
+        be treated as directional rather than universal.
+      </li>
+
+      <li>
+        Human review is required before taking editorial action.
+      </li>
+
+      <li>
+        The scoring approach should be revalidated if the data distribution,
+        content strategy, search environment, or business objective changes.
+      </li>
+
+      <li>
+        No claim is made that this analysis predicts Google's ranking
+        algorithm.
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>9. Reproducibility</h2>
+
+    <p>
+      The complete analysis is implemented in the capstone notebook:
+    </p>
+
+    <p>
+      <a href="https://github.com/Sameer99-star/flyrank-ml-internship-starter/blob/main/work/notebooks/capstone.ipynb" target="_blank">
+        Open capstone.ipynb
+      </a>
+    </p>
+
+    <p>
+      Repository:
+      <a href="https://github.com/Sameer99-star/flyrank-ml-internship-starter" target="_blank">
+        flyrank-ml-internship-starter
+      </a>
+    </p>
+
+    <p>
+      The notebook loads the anonymized dataset from:
+    </p>
+
+    <p><code>data/raw/content_refresh_anonymized.csv</code></p>
+
+    <p>
+      Generated artifacts include:
+    </p>
+
+    <ul>
+      <li><code>work/figures/capstone_score_distribution.png</code></li>
+      <li><code>work/outputs/capstone_freshness_summary.csv</code></li>
+    </ul>
+
+    <p>
+      The scoring calculation is deterministic and does not require a random
+      seed because no randomized model training is used.
+    </p>
+
+    <pre><code>model_df["score"] = (
+    model_df["days_since_last_update"].fillna(0).clip(lower=0) / 30
+    + model_df["trend_pct"].fillna(0).clip(upper=0).abs() / 10
+)</code></pre>
+  </section>
+
+  <section>
+    <h2>10. Conclusion</h2>
+
+    <p>
+      This capstone demonstrates a transparent and repeatable approach for
+      prioritizing content pages for human review. Adding recent negative
+      performance trend to content age produces a ranking that emphasizes
+      pages showing both staleness and decline.
+    </p>
+
+    <p>
+      The main value of the approach is explainability: an editor can see the
+      signals behind a page's priority rather than receiving an opaque model
+      prediction.
+    </p>
+
+    <p>
+      The result should remain a decision-support tool. Further validation,
+      domain review, and controlled experimentation would be required before
+      making claims about the causal effect of content refreshes.
+    </p>
+  </section>
+
+  <section>
+    <h2>Acknowledgments & Data Credit</h2>
+
+    <p>
+      Built on the
+      <a href="https://flyrank.ai" target="_blank">FlyRank ML Internship dataset</a>.
+    </p>
+
+    <p>
+      This work was completed as part of the FlyRank AI Machine Learning
+      Engineering Internship.
+    </p>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container">
+    FlyRank ML Capstone · Refresh / Content Opportunity Scoring · September 2026
+  </div>
+</footer>
+
+</body>
+</html>
