@@ -1,1 +1,1 @@
-PASTE-YOUR-DEPLOYED-PAPER-URL-HERE
+https://sameer99-star.github.io/flyrank-ml-internship-starter/
